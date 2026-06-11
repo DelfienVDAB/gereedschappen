@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bouwgereedschap Quiz</title>
+    <style>
+        /* Universele reset zodat alles netjes binnen het scherm past */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Veranderd van 100vh naar min-height voor mobiele browsers */
+            margin: 0;
+            padding: 15px; /* Zorgt dat de app op mobiel niet strak tegen de rand staat */
+        }
+
+        .quiz-container {
+            background-color: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 450px; /* Perfecte breedte voor zowel desktop als mobiel */
+        }
+
+        h1 { 
+            color: #333; 
+            font-size: 22px; 
+            margin-top: 0;
+            margin-bottom: 15px; 
+        }
+
+        .tool-image {
+            width: 100%;
+            height: 220px; /* Iets compacter voor mobiele schermen */
+            object-fit: contain;
+            background-color: #fafafa;
+            border-radius: 10px;
+            border: 2px solid #ddd;
+            margin-bottom: 20px;
+        }
+
+        /* De knoppen-container */
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Standaard 2 kolommen */
+            gap: 12px;
+        }
+
+        /* Grote, makkelijk inklikbare knoppen voor duimen */
+        button {
+            padding: 16px 10px; /* Meer padding verticaal voor makkelijk 'tappen' */
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            -webkit-tap-highlight-color: transparent; /* Verwijdert lelijke blauwe gloed op iPhones */
+        }
+
+        button:active {
+            transform: scale(0.98); /* Geeft een subtiel 'klik' effect op mobiel */
+            background-color: #004085;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 18px;
+            height: 25px;
+        }
+        .correct { color: #28a745; }
+        .wrong { color: #dc3545; }
+
+        /* SPECIFIEKE AANPASSINGEN VOOR SMALLE GSM'S */
+        @media (max-width: 380px) {
+            .quiz-container {
+                padding: 15px;
+            }
+            h1 {
+                font-size: 18px;
+            }
+            .tool-image {
+                height: 180px; /* Iets minder hoog op hele kleine schermen */
+            }
+            .options-container {
+                grid-template-columns: 1fr; /* Verandert naar 1 grote kolom onder elkaar als het scherm écht smal is */
+            }
+            button {
+                padding: 14px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <h1>Welk gereedschap is dit?</h1>
+    
+    <img id="tool-img" src="hamer.jpg" alt="Gereedschap" class="tool-image">
+    
+    <div class="options-container" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+</div>
+
+<script>
+    const quizData = [
+        { image: 'hamer.jpg', correct: 'Hamer', options: ['Hamer', 'Zaag', 'Nijptang', 'Waterpas'] },
+        { image: 'zaag.jpg', correct: 'Zaag', options: ['Schroevendraaier', 'Zaag', 'Boormachine', 'Hamer'] },
+        { image: 'boormachine.jpg', correct: 'Boormachine', options: ['Waterpas', 'Schuurmachine', 'Boormachine', 'Zaag'] },
+        { image: 'waterpas.jpg', correct: 'Waterpas', options: ['Nijptang', 'Waterpas', 'Hamer', 'Rolmaat'] }
+    ];
+
+    let currentQuestionIndex = 0;
+
+    function loadQuestion() {
+        const currentQuestion = quizData[currentQuestionIndex];
+        document.getElementById('tool-img').src = currentQuestion.image;
+        document.getElementById('feedback').innerText = '';
+        
+        const optionsContainer = document.getElementById('options');
+        optionsContainer.innerHTML = '';
+        
+        currentQuestion.options.forEach(option => {
+            const button = document.createElement('button');
+            button.innerText = option;
+            button.onclick = () => checkAnswer(option, currentQuestion.correct);
+            optionsContainer.appendChild(button);
+        });
+    }
+
+    function checkAnswer(selected, correct) {
+        const feedbackDiv = document.getElementById('feedback');
+        
+        // Blokkeer tijdelijk de knoppen zodat je niet snel achter elkaar kunt klikken
+        const buttons = document.querySelectorAll('button');
+        buttons.forEach(btn => btn.disabled = true);
+
+        if (selected === correct) {
+            feedbackDiv.innerText = "🎉 Goed gedaan!";
+            feedbackDiv.className = "feedback correct";
+            
+            setTimeout(() => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < quizData.length) {
+                    loadQuestion();
+                } else {
+                    alert("Super! Je hebt alle gereedschappen herkend.");
+                    currentQuestionIndex = 0;
+                    loadQuestion();
+                }
+            }, 1200);
+        } else {
+            feedbackDiv.innerText = "❌ Helaas, probeer het nog eens!";
+            feedbackDiv.className = "feedback wrong";
+            // Activeer de knoppen weer bij een fout antwoord
+            buttons.forEach(btn => btn.disabled = false);
+        }
+    }
+
+    loadQuestion();
+</script>
+
+</body>
+</html>
