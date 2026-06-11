@@ -2,175 +2,391 @@
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bouwgereedschap Quiz</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VDAB Sleepoefening - Gereedschap</title>
     <style>
-        /* Universele reset zodat alles netjes binnen het scherm past */
-        * {
-            box-sizing: border-box;
-        }
-
+        /* Huisstijl VDAB Lettertypes & Basis */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh; /* Veranderd van 100vh naar min-height voor mobiele browsers */
+            font-family: 'Flanders Art Sans', 'Calibri', sans-serif;
+            background-color: #E3E5E7; /* Lichtgrijs */
+            color: #003352; /* Donkerblauw */
             margin: 0;
-            padding: 15px; /* Zorgt dat de app op mobiel niet strak tegen de rand staat */
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .quiz-container {
-            background-color: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            text-align: center;
+        /* Header */
+        header {
+            background-color: #003352; /* VDAB Donkerblauw */
+            color: #FFFFFF;
             width: 100%;
-            max-width: 450px; /* Perfecte breedte voor zowel desktop als mobiel */
+            text-align: center;
+            padding: 20px 15px;
+            box-sizing: border-box;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
-        h1 { 
-            color: #333; 
-            font-size: 22px; 
-            margin-top: 0;
-            margin-bottom: 15px; 
+        header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        header p {
+            margin: 5px 0 0 0;
+            font-size: 0.9rem;
+            color: #C2E2FE; /* Lichtste blauwtint */
+        }
+
+        /* Hoofdcontainer (Mobile First: kolommen onder elkaar) */
+        .container {
+            width: 100%;
+            max-width: 500px;
+            padding: 15px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Woordenpool */
+        .word-pool {
+            background-color: #C2E2FE; /* Lichtste blauwtint */
+            border: 2px solid #2D89CC; /* Lichtblauw */
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            min-height: 60px;
+            align-items: center;
+        }
+
+        /* Strakke Woordkaarten */
+        .word-card {
+            background-color: #FFFFFF;
+            border: 2px solid #003352;
+            color: #003352;
+            padding: 10px 18px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: grab;
+            user-select: none;
+            touch-action: none; /* Cruciaal voor soepele touch-dragging */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .word-card:hover {
+            background-color: #2D89CC;
+            color: #FFFFFF;
+            border-color: #2D89CC;
+        }
+
+        .word-card.dragging {
+            opacity: 0.8;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            cursor: grabbing;
+        }
+
+        /* Als het woord correct is geplaatst */
+        .word-card.correct {
+            background-color: #529E57; /* VDAB Groen */
+            color: #FFFFFF;
+            border-color: #529E57;
+            cursor: default;
+            box-shadow: none;
+        }
+
+        /* Oefening Grid (Afbeeldingen + Dropzones) */
+        .exercise-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Kaart per gereedschap */
+        .tool-card {
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
         .tool-image {
-            width: 100%;
-            height: 220px; /* Iets compacter voor mobiele schermen */
-            object-fit: contain;
-            background-color: #fafafa;
-            border-radius: 10px;
-            border: 2px solid #ddd;
-            margin-bottom: 20px;
+            width: 90px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #9097A0; /* Grijs */
+            pointer-events: none; /* Zorgt dat cursor-hover hier genegeerd wordt voor audio */
         }
 
-        /* De knoppen-container */
-        .options-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr; /* Standaard 2 kolommen */
-            gap: 12px;
+        /* Dropzone */
+        .drop-zone {
+            flex-grow: 1;
+            height: 50px;
+            border: 2px dashed #9097A0; /* Grijs */
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #E3E5E7;
+            transition: background-color 0.2s, border-color 0.2s;
         }
 
-        /* Grote, makkelijk inklikbare knoppen voor duimen */
-        button {
-            padding: 16px 10px; /* Meer padding verticaal voor makkelijk 'tappen' */
-            font-size: 16px;
-            font-weight: 600;
+        .drop-zone.drag-over {
+            background-color: #C2E2FE;
+            border-color: #2D89CC;
+        }
+
+        .drop-zone.filled {
+            border: 2px solid #529E57;
+            background-color: rgba(82, 158, 87, 0.1);
+        }
+
+        /* Actieknop */
+        .btn-reset {
+            background-color: #004475;
+            color: #FFFFFF;
             border: none;
-            background-color: #007bff;
-            color: white;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
-            -webkit-tap-highlight-color: transparent; /* Verwijdert lelijke blauwe gloed op iPhones */
-        }
-
-        button:active {
-            transform: scale(0.98); /* Geeft een subtiel 'klik' effect op mobiel */
-            background-color: #004085;
-        }
-
-        .feedback {
-            margin-top: 15px;
+            padding: 12px 24px;
+            font-size: 1rem;
             font-weight: bold;
-            font-size: 18px;
-            height: 25px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
         }
-        .correct { color: #28a745; }
-        .wrong { color: #dc3545; }
 
-        /* SPECIFIEKE AANPASSINGEN VOOR SMALLE GSM'S */
-        @media (max-width: 380px) {
-            .quiz-container {
-                padding: 15px;
+        .btn-reset:hover {
+            background-color: #2D89CC;
+        }
+
+        /* Succes melding */
+        .success-message {
+            display: none;
+            background-color: #529E57;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        /* Desktop optimalisatie (Vanaf tablets/pc schuift het mooi in een grid) */
+        @media (min-width: 600px) {
+            .container {
+                max-width: 800px;
             }
-            h1 {
-                font-size: 18px;
-            }
-            .tool-image {
-                height: 180px; /* Iets minder hoog op hele kleine schermen */
-            }
-            .options-container {
-                grid-template-columns: 1fr; /* Verandert naar 1 grote kolom onder elkaar als het scherm écht smal is */
-            }
-            button {
-                padding: 14px 10px;
+            .exercise-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
             }
         }
     </style>
 </head>
 <body>
 
-<div class="quiz-container">
-    <h1>Welk gereedschap is dit?</h1>
-    
-    <img id="tool-img" src="hamer.jpg" alt="Gereedschap" class="tool-image">
-    
-    <div class="options-container" id="options"></div>
-    <div class="feedback" id="feedback"></div>
-</div>
+    <header>
+        <h1>Oefening: Gereedschap benoemen</h1>
+        <p>Sleep het juiste woord naar de bijhorende foto. Beweeg over een woord om het te horen.</p>
+    </header>
 
-<script>
-    const quizData = [
-        { image: 'hamer.jpg', correct: 'Hamer', options: ['Hamer', 'Zaag', 'Nijptang', 'Waterpas'] },
-        { image: 'zaag.jpg', correct: 'Zaag', options: ['Schroevendraaier', 'Zaag', 'Boormachine', 'Hamer'] },
-        { image: 'boormachine.jpg', correct: 'Boormachine', options: ['Waterpas', 'Schuurmachine', 'Boormachine', 'Zaag'] },
-        { image: 'waterpas.jpg', correct: 'Waterpas', options: ['Nijptang', 'Waterpas', 'Hamer', 'Rolmaat'] }
-    ];
+    <div class="container">
+        <!-- Woordenpool -->
+        <div class="word-pool" id="wordPool">
+            <!-- Woorden worden hier via JS gegenereerd (shuffled) -->
+        </div>
 
-    let currentQuestionIndex = 0;
+        <!-- Succesboodschap -->
+        <div class="success-message" id="successMessage">
+            Goed gedaan! Alle gereedschappen zijn correct benoemd.
+        </div>
 
-    function loadQuestion() {
-        const currentQuestion = quizData[currentQuestionIndex];
-        document.getElementById('tool-img').src = currentQuestion.image;
-        document.getElementById('feedback').innerText = '';
-        
-        const optionsContainer = document.getElementById('options');
-        optionsContainer.innerHTML = '';
-        
-        currentQuestion.options.forEach(option => {
-            const button = document.createElement('button');
-            button.innerText = option;
-            button.onclick = () => checkAnswer(option, currentQuestion.correct);
-            optionsContainer.appendChild(button);
-        });
-    }
+        <!-- Gereedschap Lijst -->
+        <div class="exercise-grid" id="exerciseGrid">
+            <!-- Items worden hier via JS gegenereerd (shuffled) -->
+        </div>
 
-    function checkAnswer(selected, correct) {
-        const feedbackDiv = document.getElementById('feedback');
-        
-        // Blokkeer tijdelijk de knoppen zodat je niet snel achter elkaar kunt klikken
-        const buttons = document.querySelectorAll('button');
-        buttons.forEach(btn => btn.disabled = true);
+        <button class="btn-reset" onclick="initExercise()">Opnieuw beginnen</button>
+    </div>
 
-        if (selected === correct) {
-            feedbackDiv.innerText = "🎉 Goed gedaan!";
-            feedbackDiv.className = "feedback correct";
-            
-            setTimeout(() => {
-                currentQuestionIndex++;
-                if (currentQuestionIndex < quizData.length) {
-                    loadQuestion();
-                } else {
-                    alert("Super! Je hebt alle gereedschappen herkend.");
-                    currentQuestionIndex = 0;
-                    loadQuestion();
+    <script>
+        const toolsData = [
+            { id: 'boormachine', name: 'boormachine', img: 'boormachine.jpg' },
+            { id: 'hamer', name: 'hamer', img: 'hamer.jpg' },
+            { id: 'nijptang', name: 'nijptang', img: 'nijptang.jpg' },
+            { id: 'waterpas', name: 'waterpas', img: 'waterpas.jpg' },
+            { id: 'zaag', name: 'zaag', img: 'zaag.jpg' }
+        ];
+
+        // Spraakfunctie (Vlaamse stem)
+        function speakWord(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Stop eventuele lopende spraak
+                const utterance = new SpeechSynthesisUtterance(text);
+                
+                // Zoek naar een Vlaamse/Nederlandse stem
+                const voices = window.speechSynthesis.getVoices();
+                const vlaamseVoice = voices.find(v => v.lang === 'nl-BE') || voices.find(v => v.lang.startsWith('nl'));
+                
+                if (vlaamseVoice) {
+                    utterance.voice = vlaamseVoice;
                 }
-            }, 1200);
-        } else {
-            feedbackDiv.innerText = "❌ Helaas, probeer het nog eens!";
-            feedbackDiv.className = "feedback wrong";
-            // Activeer de knoppen weer bij een fout antwoord
-            buttons.forEach(btn => btn.disabled = false);
+                utterance.lang = 'nl-BE';
+                window.speechSynthesis.speak(utterance);
+            }
         }
-    }
 
-    loadQuestion();
-</script>
+        // Browser fix: stemmen laden asynchroon
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.getVoices();
+        }
 
+        // Shuffle functie
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        // Initialiseer of herstart de oefening
+        function initExercise() {
+            const wordPool = document.getElementById('wordPool');
+            const exerciseGrid = document.getElementById('exerciseGrid');
+            const successMessage = document.getElementById('successMessage');
+            
+            wordPool.innerHTML = '';
+            exerciseGrid.innerHTML = '';
+            successMessage.style.display = 'none';
+
+            // 1. Genereer woorden (shuffled)
+            const shuffledWords = shuffle([...toolsData]);
+            shuffledWords.forEach(tool => {
+                const card = document.createElement('div');
+                card.className = 'word-card';
+                card.textContent = tool.name;
+                card.setAttribute('data-tool', tool.id);
+                card.setAttribute('id', `word-${tool.id}`);
+                
+                // Audio trigger enkel bij hover over het woord
+                card.addEventListener('mouseenter', () => {
+                    if (!card.classList.contains('correct')) {
+                        speakWord(tool.name);
+                    }
+                });
+
+                // Voeg PointerEvents toe voor universele drag-and-drop (Mobile + Desktop)
+                setupDragEvents(card);
+                
+                wordPool.appendChild(card);
+            });
+
+            // 2. Genereer afbeeldingen + dropzones (shuffled)
+            const shuffledTools = shuffle([...toolsData]);
+            shuffledTools.forEach(tool => {
+                const toolCard = document.createElement('div');
+                toolCard.className = 'tool-card';
+
+                const img = document.createElement('img');
+                img.className = 'tool-image';
+                img.src = tool.img;
+                img.alt = tool.name;
+
+                const dropZone = document.createElement('div');
+                dropZone.className = 'drop-zone';
+                dropZone.setAttribute('data-match', tool.id);
+                dropZone.textContent = 'Sleep hierheen';
+
+                toolCard.appendChild(img);
+                toolCard.appendChild(dropZone);
+                exerciseGrid.appendChild(toolCard);
+            });
+        }
+
+        // Geavanceerde PointerEvent functionaliteit (Vervangt HTML5 DnD voor perfecte mobiele werking)
+        function setupDragEvents(card) {
+            let startX, startY, ghost;
+
+            card.addEventListener('pointerdown', (e) => {
+                if (card.classList.contains('correct')) return;
+                
+                card.setPointerCapture(e.pointerId);
+                card.classList.add('dragging');
+                
+                startX = e.clientX;
+                startY = e.clientY;
+                
+                card.style.transition = 'none';
+            });
+
+            card.addEventListener('pointermove', (e) => {
+                if (!card.classList.contains('dragging')) return;
+                
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                
+                card.style.transform = `translate3d(${dx}px, ${dy}px, 0)`;
+                card.style.zIndex = '1000';
+            });
+
+            card.addEventListener('pointerup', (e) => {
+                if (!card.classList.contains('dragging')) return;
+                
+                card.classList.remove('dragging');
+                card.releasePointerCapture(e.pointerId);
+                
+                // Zoek element onder de cursor/vinger
+                card.style.display = 'none';
+                const elementBelow = document.elementFromPoint(e.clientX, e.clientY);
+                card.style.display = 'inline-flex';
+                
+                const dropZone = elementBelow ? elementBelow.closest('.drop-zone') : null;
+                const targetMatch = card.getAttribute('data-tool');
+
+                if (dropZone && dropZone.getAttribute('data-match') === targetMatch && !dropZone.classList.contains('filled')) {
+                    // Correcte match!
+                    dropZone.innerHTML = '';
+                    dropZone.appendChild(card);
+                    dropZone.classList.add('filled');
+                    card.classList.add('correct');
+                    card.style.transform = 'none';
+                    card.style.zIndex = '';
+                    
+                    checkWin();
+                } else {
+                    // Verkeerd of misgekeken: animatie terug naar startpositie
+                    card.style.transition = 'transform 0.3s ease';
+                    card.style.transform = 'translate3d(0, 0, 0)';
+                    setTimeout(() => { card.style.zIndex = ''; }, 300);
+                }
+            });
+        }
+
+        // Controleer of de oefening klaar is
+        function checkWin() {
+            const totalFilled = document.querySelectorAll('.drop-zone.filled').length;
+            if (totalFilled === toolsData.length) {
+                document.getElementById('successMessage').style.display = 'block';
+                speakWord("Goed gedaan!");
+            }
+        }
+
+        // Start het spel bij laden van de pagina
+        window.onload = initExercise;
+    </script>
 </body>
 </html>
